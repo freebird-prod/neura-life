@@ -37,7 +37,7 @@ export default function Home() {
             Pricing
           </a>
         </nav>
-        <button className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 transition text-white px-6 py-2.5 rounded-full font-semibold shadow-lg shadow-pink-500/30">
+        <button className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 transition text-white px-6 py-2.5 rounded-full font-semibold shadow-lg shadow-pink-500/30 cursor-pointer">
           Get Started Free
         </button>
       </header>
@@ -62,10 +62,10 @@ export default function Home() {
                 and helps you achieve more — effortlessly.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <button className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 transition text-white px-8 py-4 rounded-full font-semibold text-lg shadow-xl shadow-pink-500/30">
+                <button className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 transition text-white px-8 py-4 rounded-full font-semibold text-lg shadow-xl shadow-pink-500/30 cursor-pointer">
                   Start Free Trial
                 </button>
-                <button className="border-2 border-pink-600 text-pink-600 px-8 py-4 rounded-full hover:bg-pink-50 font-semibold text-lg transition flex items-center justify-center gap-2">
+                <button className="border-2 border-pink-600 text-pink-600 px-8 py-4 rounded-full hover:bg-pink-50 font-semibold text-lg transition flex items-center justify-center gap-2 cursor-pointer">
                   <span>Watch Demo</span>
                   <span>▶</span>
                 </button>
@@ -378,7 +378,7 @@ export default function Home() {
                   <span className="text-gray-600">Markdown support</span>
                 </div>
               </div>
-              <button className="w-full border-2 border-gray-300 text-gray-700 py-3 rounded-full font-semibold hover:bg-gray-50 transition">
+              <button className="w-full border-2 border-gray-300 text-gray-700 py-3 rounded-full font-semibold hover:bg-gray-50 transition cursor-pointer">
                 Get Started
               </button>
             </div>
@@ -412,7 +412,7 @@ export default function Home() {
                   <span>Priority support</span>
                 </div>
               </div>
-              <button className="w-full bg-white text-pink-600 py-3 rounded-full font-semibold hover:bg-gray-50 transition shadow-lg">
+              <button className="w-full bg-white text-pink-600 py-3 rounded-full font-semibold hover:bg-gray-50 transition shadow-lg cursor-pointer">
                 Start Free Trial
               </button>
             </div>
@@ -443,7 +443,7 @@ export default function Home() {
                   <span className="text-gray-600">Dedicated support</span>
                 </div>
               </div>
-              <button className="w-full border-2 border-purple-600 text-purple-600 py-3 rounded-full font-semibold hover:bg-purple-50 transition">
+              <button className="w-full border-2 border-purple-600 text-purple-600 py-3 rounded-full font-semibold hover:bg-purple-50 transition cursor-pointer">
                 Contact Sales
               </button>
             </div>
@@ -463,10 +463,10 @@ export default function Home() {
             — your AI-powered digital brain awaits.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <button className="bg-white text-pink-600 font-bold px-10 py-4 rounded-full hover:bg-gray-100 transition shadow-2xl text-lg">
+            <button className="bg-white text-pink-600 font-bold px-10 py-4 rounded-full hover:bg-gray-100 transition shadow-2xl text-lg cursor-pointer">
               Start Free Trial
             </button>
-            <button className="bg-transparent border-2 border-white text-white px-10 py-4 rounded-full hover:bg-white hover:text-pink-600 transition font-bold text-lg">
+            <button className="bg-transparent border-2 border-white text-white px-10 py-4 rounded-full hover:bg-white hover:text-pink-600 transition font-bold text-lg cursor-pointer">
               Schedule Demo
             </button>
           </div>
