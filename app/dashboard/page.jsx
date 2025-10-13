@@ -1,3 +1,9 @@
-const { Racing_Sans_One } = require("next/font/google");
+import React from 'react'
 
-Racing_Sans_One
+const Dashboard = () => {
+  return (
+    <div>Dashboard</div>
+  )
+}
+
+export default Dashboard
