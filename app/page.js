@@ -2,7 +2,11 @@
 export default function Home() {
   return (
    <div>
-    <h1>NeuraLife – The Personalized Digital Brain</h1>
+    <header>
+      <h1>
+        NeuraLife
+      </h1>
+    </header>
    </div>
   );
 }
