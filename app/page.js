@@ -1,4 +1,8 @@
+'use client'
+import { useRouter } from "next/navigation";
+
 export default function Home() {
+  const router = useRouter();
   return (
     <div className="min-h-screen bg-white text-gray-900">
       {/* Header */}
@@ -37,7 +41,8 @@ export default function Home() {
             Pricing
           </a>
         </nav>
-        <button className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 transition text-white px-6 py-2.5 rounded-full font-semibold shadow-lg shadow-pink-500/30 cursor-pointer">
+        <button className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 transition text-white px-6 py-2.5 rounded-full font-semibold shadow-lg shadow-pink-500/30 cursor-pointer"
+        onClick={() => router.push('/auth')}>
           Get Started Free
         </button>
       </header>
