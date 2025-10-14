@@ -1,20 +1,23 @@
 "use client";
-import React, { useState } from "react";
-import { 
-  LayoutDashboard, 
-  FileText, 
-  Brain, 
-  Settings, 
-  LogOut, 
-  StickyNote, 
-  Network 
+import React, { useState, useEffect } from "react";
+import {
+  LayoutDashboard,
+  FileText,
+  Brain,
+  Settings,
+  LogOut,
+  StickyNote,
+  Network,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
-  
+  const router = useRouter();
+  const { user, logout } = useAuth();
+
   const menuItems = [
     { name: "Overview", icon: LayoutDashboard, href: "/dashboard" },
     { name: "Notes", icon: StickyNote, href: "/dashboard/notes" },
@@ -25,7 +28,18 @@ export default function DashboardLayout({ children }) {
   ];
 
   const getActiveItem = () => {
-    return menuItems.find(item => item.href === pathname)?.name || "";
+    return menuItems.find((item) => item.href === pathname)?.name || "";
+  };
+
+  useEffect(() => {
+    if (!user) {
+      router.push("/auth");
+    }
+  }, [router, user]);
+
+  const handleLogout = () => {
+    logout();
+    router.push("/auth");
   };
 
   return (
@@ -43,13 +57,13 @@ export default function DashboardLayout({ children }) {
               const Icon = item.icon;
               const isActive = pathname === item.href;
               return (
-                <Link 
-                  key={item.name} 
+                <Link
+                  key={item.name}
                   href={item.href}
-                  className={`flex items-center px-4 py-3 rounded-lg transition ${
+                  className={`flex items-center px-4 py-3 rounded-lg transition-all duration-200 ${
                     isActive
-                      ? "bg-pink-100 text-pink-600 font-semibold"
-                      : "text-gray-600 hover:bg-pink-50"
+                      ? "bg-pink-100 text-pink-600 font-semibold border-l-4 border-pink-600 shadow-sm"
+                      : "text-gray-600 hover:bg-pink-50 hover:text-pink-500"
                   }`}
                 >
                   <Icon className="w-5 h-5 mr-3" />
@@ -61,7 +75,10 @@ export default function DashboardLayout({ children }) {
         </div>
 
         <div className="border-t border-gray-200 p-4">
-          <button className="flex items-center w-full px-4 py-3 text-gray-600 hover:text-pink-600 hover:bg-pink-50 rounded-lg transition">
+          <button
+            onClick={handleLogout}
+            className="flex items-center w-full px-4 py-3 bg-pink-100 text-pink-600 font-semibold border-l-4 border-r-4 border-pink-600 shadow-md rounded-xl cursor-pointer"
+          >
             <LogOut className="w-5 h-5 mr-3" />
             Logout
           </button>

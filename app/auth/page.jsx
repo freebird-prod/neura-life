@@ -1,12 +1,28 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  doc,
+  setDoc,
+  serverTimestamp,
+} from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import toast, { Toaster } from "react-hot-toast";
+import bcrypt from "bcryptjs";
+import { useAuth } from "@/contexts/AuthContext";
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { user, login } = useAuth();
 
   useEffect(() => {
     document.title = "NeuraLife | Authentication";
@@ -23,30 +39,124 @@ const AuthPage = () => {
         "Sign in or create an account to access your AI-powered life organizer";
       document.getElementsByTagName("head")[0].appendChild(meta);
     }
-  }, []);
 
-  const handleSubmit = (e) => {
+    // Check if user is already logged in
+    if (user) {
+      router.push("/dashboard");
+    }
+  }, [router, user]);
+
+  // Clear form fields when switching between login/signup
+  const toggleAuthMode = () => {
+    setIsLogin(!isLogin);
+    setEmail("");
+    setPassword("");
+    if (!isLogin) setName("");
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isLogin) {
-      const storedUser = JSON.parse(localStorage.getItem("user"));
-      if (
-        storedUser &&
-        storedUser.email === email &&
-        storedUser.password === password
-      ) {
-        setMessage("✅ Login successful!");
+    setLoading(true);
+
+    try {
+      if (isLogin) {
+        // Login user
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("email", "==", email));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+          toast.error("User not found");
+          setLoading(false);
+          return;
+        }
+
+        const userDoc = querySnapshot.docs[0];
+        const userData = userDoc.data();
+
+        const isPasswordValid = await bcrypt.compare(
+          password,
+          userData.password
+        );
+        if (!isPasswordValid) {
+          toast.error("Invalid password");
+          setLoading(false);
+          return;
+        }
+
+        // Store user data in localStorage
+        login({
+          id: userData.id,
+          name: userData.name,
+          email: userData.email,
+        });
+
+        toast.success("Login successful!");
+        router.push("/dashboard");
       } else {
-        setMessage("❌ Invalid email or password");
+        // Register user
+        if (!email || !password || !name) {
+          toast.error("Please fill all fields");
+          setLoading(false);
+          return;
+        }
+
+        // Check if user already exists
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("email", "==", email));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          toast.error(
+            "This email is already registered. Please log in instead."
+          );
+          setIsLogin(true);
+          setPassword("");
+          setLoading(false);
+          return;
+        }
+
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Generate user ID
+        const userId = crypto.randomUUID();
+
+        // Create user document in Firestore
+        try {
+          await setDoc(doc(db, "users", userId), {
+            id: userId,
+            name,
+            email,
+            password: hashedPassword,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          });
+
+          // Store user data in localStorage
+          login({
+            id: userId,
+            name,
+            email,
+          });
+
+          toast.success("Account created successfully!");
+          setIsLogin(true);
+          setEmail("");
+          setPassword("");
+          setName("");
+        } catch (firestoreError) {
+          console.error("Firestore error:", firestoreError);
+          toast.error(
+            "Account created but failed to save details. Please contact support."
+          );
+        }
       }
-    } else {
-      if (!email || !password || !name) {
-        setMessage("⚠️ Please fill all fields");
-        return;
-      }
-      const userData = { name, email, password };
-      localStorage.setItem("user", JSON.stringify(userData));
-      setMessage("✅ Signup successful! You can now log in.");
-      setIsLogin(true);
+    } catch (error) {
+      console.error("Authentication error:", error);
+      toast.error(error.message || "An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -110,25 +220,47 @@ const AuthPage = () => {
 
             <button
               type="submit"
-              className="w-full bg-pink-600 hover:bg-pink-700 text-white py-3 rounded-lg font-semibold transition cursor-pointer"
+              disabled={loading}
+              className={`w-full bg-pink-600 hover:bg-pink-700 text-white py-3 rounded-lg font-semibold transition ${
+                loading ? "opacity-70 cursor-not-allowed" : "cursor-pointer"
+              }`}
             >
-              {isLogin ? "Login" : "Sign Up"}
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  {isLogin ? "Logging in..." : "Creating account..."}
+                </span>
+              ) : isLogin ? (
+                "Login"
+              ) : (
+                "Sign Up"
+              )}
             </button>
           </form>
 
-          {message && (
-            <p className="text-center text-sm font-medium mt-4 text-gray-700">
-              {message}
-            </p>
-          )}
-
           <p className="text-center text-gray-600 mt-6">
-            {isLogin ? "Don’t have an account?" : "Already have an account?"}{" "}
+            {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
             <button
-              onClick={() => {
-                setIsLogin(!isLogin);
-                setMessage("");
-              }}
+              onClick={toggleAuthMode}
               className="text-pink-600 font-semibold hover:underline cursor-pointer"
             >
               {isLogin ? "Sign Up" : "Login"}
