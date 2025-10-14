@@ -35,16 +35,14 @@ export const GoalsProvider = ({ children }) => {
 
   const fetchGoals = async () => {
     try {
-      const q = query(
-        collection(db, "goals"),
-        where("userId", "==", user.id),
-        orderBy("createdAt", "desc")
-      );
+      const q = query(collection(db, "goals"), where("userId", "==", user.id));
       const querySnapshot = await getDocs(q);
-      const goalsData = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const goalsData = querySnapshot.docs
+        .map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+        .sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
       setGoals(goalsData);
     } catch (error) {
       console.error("Error fetching goals:", error);

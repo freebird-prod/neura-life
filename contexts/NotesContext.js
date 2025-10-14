@@ -35,16 +35,14 @@ export const NotesProvider = ({ children }) => {
 
   const fetchNotes = async () => {
     try {
-      const q = query(
-        collection(db, "notes"),
-        where("userId", "==", user.id),
-        orderBy("createdAt", "desc")
-      );
+      const q = query(collection(db, "notes"), where("userId", "==", user.id));
       const querySnapshot = await getDocs(q);
-      const notesData = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const notesData = querySnapshot.docs
+        .map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+        .sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
       setNotes(notesData);
     } catch (error) {
       console.error("Error fetching notes:", error);

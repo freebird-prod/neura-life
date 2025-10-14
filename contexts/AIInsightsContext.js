@@ -37,14 +37,15 @@ export const AIInsightsProvider = ({ children }) => {
     try {
       const q = query(
         collection(db, "ai-insights"),
-        where("userId", "==", user.id),
-        orderBy("createdAt", "desc")
+        where("userId", "==", user.id)
       );
       const querySnapshot = await getDocs(q);
-      const insightsData = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const insightsData = querySnapshot.docs
+        .map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+        .sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
       setInsights(insightsData);
     } catch (error) {
       console.error("Error fetching insights:", error);

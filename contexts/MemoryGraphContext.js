@@ -37,14 +37,15 @@ export const MemoryGraphProvider = ({ children }) => {
     try {
       const q = query(
         collection(db, "memory-graph"),
-        where("userId", "==", user.id),
-        orderBy("createdAt", "desc")
+        where("userId", "==", user.id)
       );
       const querySnapshot = await getDocs(q);
-      const graphDataList = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const graphDataList = querySnapshot.docs
+        .map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+        .sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
       setGraphData(graphDataList);
     } catch (error) {
       console.error("Error fetching graph data:", error);
