@@ -12,6 +12,11 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { NotesProvider } from "@/contexts/NotesContext";
+import { GoalsProvider } from "@/contexts/GoalsContext";
+import { AIInsightsProvider } from "@/contexts/AIInsightsContext";
+import { MemoryGraphProvider } from "@/contexts/MemoryGraphContext";
+import { SettingsProvider } from "@/contexts/SettingsContext";
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
@@ -90,7 +95,15 @@ export default function DashboardLayout({ children }) {
         <h1 className="text-3xl font-bold text-gray-800 mb-6">
           {getActiveItem()}
         </h1>
-        {children}
+        <NotesProvider>
+          <GoalsProvider>
+            <AIInsightsProvider>
+              <MemoryGraphProvider>
+                <SettingsProvider>{children}</SettingsProvider>
+              </MemoryGraphProvider>
+            </AIInsightsProvider>
+          </GoalsProvider>
+        </NotesProvider>
       </main>
     </div>
   );
