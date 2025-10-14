@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   collection,
@@ -14,15 +14,18 @@ import { db } from "@/lib/firebase";
 import toast, { Toaster } from "react-hot-toast";
 import bcrypt from "bcryptjs";
 import { useAuth } from "@/contexts/AuthContext";
+import { User } from "lucide-react";
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [profilePhoto, setProfilePhoto] = useState(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { user, login } = useAuth();
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     document.title = "NeuraLife | Authentication";
@@ -52,8 +55,49 @@ const AuthPage = () => {
     setEmail("");
     setPassword("");
     if (!isLogin) setName("");
+    setProfilePhoto(null);
   };
 
+  const handlePhotoUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+
+          // Resize image to max 300x300 to reduce file size
+          const maxSize = 300;
+          let { width, height } = img;
+
+          if (width > height) {
+            if (width > maxSize) {
+              height = (height * maxSize) / width;
+              width = maxSize;
+            }
+          } else {
+            if (height > maxSize) {
+              width = (width * maxSize) / height;
+              height = maxSize;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Convert to base64 with reduced quality
+          const base64Data = canvas.toDataURL("image/jpeg", 0.7);
+          setProfilePhoto(base64Data);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -129,6 +173,7 @@ const AuthPage = () => {
             name,
             email,
             password: hashedPassword,
+            profilePhoto,
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
           });
@@ -145,6 +190,7 @@ const AuthPage = () => {
           setEmail("");
           setPassword("");
           setName("");
+          setProfilePhoto(null);
         } catch (firestoreError) {
           console.error("Firestore error:", firestoreError);
           toast.error(
@@ -189,6 +235,39 @@ const AuthPage = () => {
                   placeholder="Enter your name"
                   className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-pink-500 focus:outline-none"
                 />
+              </div>
+            )}
+
+            {!isLogin && (
+              <div>
+                <label className="block text-gray-700 mb-1 font-medium">
+                  Profile Photo (Optional)
+                </label>
+                <div className="flex items-center justify-center">
+                  <div className="relative">
+                    <div
+                      className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden cursor-pointer hover:bg-gray-300 transition-colors"
+                      onClick={() => fileInputRef.current.click()}
+                    >
+                      {profilePhoto ? (
+                        <img
+                          src={profilePhoto}
+                          alt="Profile"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <User size={32} className="text-gray-400" />
+                      )}
+                    </div>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handlePhotoUpload}
+                      accept="image/*"
+                      className="hidden"
+                    />
+                  </div>
+                </div>
               </div>
             )}
 

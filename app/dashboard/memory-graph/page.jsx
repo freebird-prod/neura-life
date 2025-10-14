@@ -48,7 +48,7 @@ const MemoryGraphPage = () => {
           </div>
           <button
             onClick={() => setIsCreating(true)}
-            className="bg-pink-600 hover:bg-pink-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors"
+            className="bg-pink-600 hover:bg-pink-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors cursor-pointer"
           >
             <Plus size={20} />
             New Node
@@ -104,14 +104,14 @@ const MemoryGraphPage = () => {
                 <button
                   onClick={handleSaveNode}
                   disabled={loading}
-                  className="bg-pink-600 hover:bg-pink-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors"
+                  className="bg-pink-600 hover:bg-pink-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors cursor-pointer"
                 >
                   <Save size={20} />
                   {loading ? "Saving..." : "Save Node"}
                 </button>
                 <button
                   onClick={() => setIsCreating(false)}
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-lg transition-colors"
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-lg transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -167,7 +167,7 @@ const MemoryGraphPage = () => {
             </p>
             <button
               onClick={() => setIsCreating(true)}
-              className="bg-pink-600 hover:bg-pink-700 text-white px-6 py-3 rounded-lg inline-flex items-center gap-2 transition-colors"
+              className="bg-pink-600 hover:bg-pink-700 text-white px-6 py-3 rounded-lg inline-flex items-center gap-2 transition-colors cursor-pointer"
             >
               <Plus size={20} />
               Create Your First Node

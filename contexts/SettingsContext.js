@@ -18,9 +18,7 @@ export const useSettings = () => {
 export const SettingsProvider = ({ children }) => {
   const { user } = useAuth();
   const [settings, setSettings] = useState({
-    theme: "light",
-    notifications: true,
-    aiEnabled: true,
+    profilePhoto: null,
   });
   const [loading, setLoading] = useState(false);
 
@@ -32,10 +30,28 @@ export const SettingsProvider = ({ children }) => {
 
   const fetchSettings = async () => {
     try {
+      // First try to get settings
       const settingsDoc = await getDoc(doc(db, "settings", user.id));
+      let userSettings = {
+        profilePhoto: null,
+      };
+
       if (settingsDoc.exists()) {
-        setSettings(settingsDoc.data());
+        userSettings = settingsDoc.data();
       }
+
+      // If no profilePhoto in settings, check users collection
+      if (!userSettings.profilePhoto) {
+        const userDoc = await getDoc(doc(db, "users", user.id));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          if (userData.profilePhoto) {
+            userSettings.profilePhoto = userData.profilePhoto;
+          }
+        }
+      }
+
+      setSettings(userSettings);
     } catch (error) {
       console.error("Error fetching settings:", error);
       toast.error("Failed to load settings");
