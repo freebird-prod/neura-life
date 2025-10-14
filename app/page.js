@@ -1,8 +1,28 @@
-'use client'
+"use client";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Home() {
   const router = useRouter();
+
+  useEffect(() => {
+    // Add smooth scrolling behavior to all anchor links
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+      anchor.addEventListener("click", function (e) {
+        e.preventDefault();
+        const targetId = this.getAttribute("href");
+        const targetElement = document.querySelector(targetId);
+
+        if (targetElement) {
+          targetElement.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }
+      });
+    });
+  }, []);
+
   return (
     <div className="min-h-screen bg-white text-gray-900">
       {/* Header */}
@@ -11,7 +31,11 @@ export default function Home() {
           <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center">
             <span className="text-white font-bold text-xl">N</span>
           </div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+
+          <h1
+            className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent cursor-pointer"
+            onClick={() => window.location.reload()}
+          >
             NeuraLife
           </h1>
         </div>
@@ -29,20 +53,16 @@ export default function Home() {
             How It Works
           </a>
           <a
-            href="#testimonials"
-            className="hover:text-pink-600 font-medium transition"
-          >
-            Testimonials
-          </a>
-          <a
             href="#pricing"
             className="hover:text-pink-600 font-medium transition"
           >
             Pricing
           </a>
         </nav>
-        <button className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 transition text-white px-6 py-2.5 rounded-full font-semibold shadow-lg shadow-pink-500/30 cursor-pointer"
-        onClick={() => router.push('/auth')}>
+        <button
+          className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 transition text-white px-6 py-2.5 rounded-full font-semibold shadow-lg shadow-pink-500/30 cursor-pointer"
+          onClick={() => router.push("/auth")}
+        >
           Get Started
         </button>
       </header>
@@ -67,12 +87,11 @@ export default function Home() {
                 and helps you achieve more — effortlessly.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <button className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 transition text-white px-8 py-4 rounded-full font-semibold text-lg shadow-xl shadow-pink-500/30 cursor-pointer">
+                <button
+                  className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 transition text-white px-8 w-lg py-4 rounded-full font-semibold text-lg shadow-xl shadow-pink-500/30 cursor-pointer"
+                  onClick={() => router.push("/auth")}
+                >
                   Start Free Trial
-                </button>
-                <button className="border-2 border-pink-600 text-pink-600 px-8 py-4 rounded-full hover:bg-pink-50 font-semibold text-lg transition flex items-center justify-center gap-2 cursor-pointer">
-                  <span>Watch Demo</span>
-                  <span>▶</span>
                 </button>
               </div>
               <div className="flex items-center gap-6 pt-6">
@@ -270,84 +289,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-      {/* Testimonials */}
-      <section
-        id="testimonials"
-        className="py-24 px-6 md:px-20 bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50"
-      >
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="text-5xl font-bold mb-6">
-              Loved by Creators Worldwide
-            </h2>
-            <p className="text-xl text-gray-600">
-              See what our users are saying about NeuraLife
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-white p-8 rounded-3xl shadow-lg">
-              <div className="flex gap-1 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <span key={i} className="text-yellow-400 text-xl">
-                    ★
-                  </span>
-                ))}
-              </div>
-              <p className="text-gray-700 mb-6 leading-relaxed">
-                "NeuraLife completely changed how I manage my research. The AI
-                connections between my notes are mind-blowing!"
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-pink-600 rounded-full"></div>
-                <div>
-                  <div className="font-semibold">Sarah Chen</div>
-                  <div className="text-sm text-gray-500">PhD Researcher</div>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white p-8 rounded-3xl shadow-lg">
-              <div className="flex gap-1 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <span key={i} className="text-yellow-400 text-xl">
-                    ★
-                  </span>
-                ))}
-              </div>
-              <p className="text-gray-700 mb-6 leading-relaxed">
-                "As a writer, I needed something that could keep up with my
-                scattered thoughts. NeuraLife is exactly that and more."
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full"></div>
-                <div>
-                  <div className="font-semibold">Marcus Johnson</div>
-                  <div className="text-sm text-gray-500">Author & Blogger</div>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white p-8 rounded-3xl shadow-lg">
-              <div className="flex gap-1 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <span key={i} className="text-yellow-400 text-xl">
-                    ★
-                  </span>
-                ))}
-              </div>
-              <p className="text-gray-700 mb-6 leading-relaxed">
-                "The offline capability is a game-changer. I can work on my
-                ideas anywhere without worrying about connectivity."
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full"></div>
-                <div>
-                  <div className="font-semibold">Emily Rodriguez</div>
-                  <div className="text-sm text-gray-500">Product Designer</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
       {/* Pricing */}
       <section id="pricing" className="py-24 px-6 md:px-20 bg-white">
         <div className="max-w-7xl mx-auto">
@@ -468,11 +409,8 @@ export default function Home() {
             — your AI-powered digital brain awaits.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <button className="bg-white text-pink-600 font-bold px-10 py-4 rounded-full hover:bg-gray-100 transition shadow-2xl text-lg cursor-pointer">
+            <button className="border-2 border-white text-white font-bold px-10 py-4 rounded-full hover:border-pink-400 hover:scale-105 transition-all shadow-2xl text-lg cursor-pointer">
               Start Free Trial
-            </button>
-            <button className="bg-transparent border-2 border-white text-white px-10 py-4 rounded-full hover:bg-white hover:text-pink-600 transition font-bold text-lg cursor-pointer">
-              Schedule Demo
             </button>
           </div>
           <div className="mt-12 flex items-center justify-center gap-8 text-sm">
@@ -491,97 +429,6 @@ export default function Home() {
           </div>
         </div>
       </section>{" "}
-      {/* <-- Close the CTA Section properly */}
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-16 px-6 md:px-20">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center">
-                  <span className="text-white font-bold text-xl">N</span>
-                </div>
-                <h3 className="text-xl font-bold text-white">NeuraLife</h3>
-              </div>
-              <p className="text-sm leading-relaxed">
-                Your AI-powered second brain for capturing, organizing, and
-                amplifying your thoughts.
-              </p>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">Product</h4>
-              <div className="space-y-2">
-                <a
-                  href="#features"
-                  className="block hover:text-pink-400 transition"
-                >
-                  Features
-                </a>
-                <a
-                  href="#pricing"
-                  className="block hover:text-pink-400 transition"
-                >
-                  Pricing
-                </a>
-                <a href="#" className="block hover:text-pink-400 transition">
-                  Roadmap
-                </a>
-                <a href="#" className="block hover:text-pink-400 transition">
-                  Changelog
-                </a>
-              </div>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">Company</h4>
-              <div className="space-y-2">
-                <a href="#" className="block hover:text-pink-400 transition">
-                  About
-                </a>
-                <a href="#" className="block hover:text-pink-400 transition">
-                  Blog
-                </a>
-                <a href="#" className="block hover:text-pink-400 transition">
-                  Careers
-                </a>
-                <a href="#" className="block hover:text-pink-400 transition">
-                  Contact
-                </a>
-              </div>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">Legal</h4>
-              <div className="space-y-2">
-                <a href="#" className="block hover:text-pink-400 transition">
-                  Privacy
-                </a>
-                <a href="#" className="block hover:text-pink-400 transition">
-                  Terms
-                </a>
-                <a href="#" className="block hover:text-pink-400 transition">
-                  Security
-                </a>
-                <a href="#" className="block hover:text-pink-400 transition">
-                  GDPR
-                </a>
-              </div>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm">© 2024 NeuraLife. All rights reserved.</p>
-            <div className="flex gap-6">
-              <a href="#" className="hover:text-pink-400 transition">
-                Twitter
-              </a>
-              <a href="#" className="hover:text-pink-400 transition">
-                LinkedIn
-              </a>
-              <a href="#" className="hover:text-pink-400 transition">
-                GitHub
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

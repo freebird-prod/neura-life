@@ -1,19 +1,39 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    document.title = "NeuraLife | Authentication";
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute(
+        "content",
+        "Sign in or create an account to access your AI-powered life organizer"
+      );
+    } else {
+      const meta = document.createElement("meta");
+      meta.name = "description";
+      meta.content =
+        "Sign in or create an account to access your AI-powered life organizer";
+      document.getElementsByTagName("head")[0].appendChild(meta);
+    }
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (isLogin) {
       const storedUser = JSON.parse(localStorage.getItem("user"));
-      if (storedUser && storedUser.email === email && storedUser.password === password) {
+      if (
+        storedUser &&
+        storedUser.email === email &&
+        storedUser.password === password
+      ) {
         setMessage("✅ Login successful!");
       } else {
         setMessage("❌ Invalid email or password");
@@ -21,10 +41,6 @@ const AuthPage = () => {
     } else {
       if (!email || !password || !name) {
         setMessage("⚠️ Please fill all fields");
-        return;
-      }
-      if (password !== confirmPassword) {
-        setMessage("⚠️ Passwords do not match");
         return;
       }
       const userData = { name, email, password };
@@ -37,17 +53,12 @@ const AuthPage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-pink-100 via-white to-pink-200">
       <div className="flex w-[90%] max-w-6xl bg-white rounded-2xl shadow-2xl overflow-hidden">
-        <div className="w-1/2 hidden md:flex flex-col items-center justify-center bg-pink-600 text-white p-12">
-          <h2 className="text-4xl font-bold mb-4">NeuraLife</h2>
-          <p className="text-lg mb-6 text-pink-100 text-center">
-            Your AI-powered life organizer — built to learn how you think.
-          </p>
-          <ul className="text-pink-100 space-y-3 text-left">
-            <li>🧠 Smart memory recall</li>
-            <li>📝 Markdown-based notes</li>
-            <li>⚡ Cross-device sync</li>
-            <li>🤖 AI-driven recommendations</li>
-          </ul>
+        <div className="w-1/2 hidden md:flex items-center justify-center p-0">
+          <img
+            src="/auth.jpg"
+            alt="NeuraLife Authentication"
+            className="w-full h-full object-cover"
+          />
         </div>
 
         <div className="w-full md:w-1/2 p-10 flex flex-col justify-center">
@@ -58,7 +69,9 @@ const AuthPage = () => {
           <form onSubmit={handleSubmit} className="space-y-5">
             {!isLogin && (
               <div>
-                <label className="block text-gray-700 mb-1 font-medium">Full Name</label>
+                <label className="block text-gray-700 mb-1 font-medium">
+                  Full Name
+                </label>
                 <input
                   type="text"
                   value={name}
@@ -70,7 +83,9 @@ const AuthPage = () => {
             )}
 
             <div>
-              <label className="block text-gray-700 mb-1 font-medium">Email</label>
+              <label className="block text-gray-700 mb-1 font-medium">
+                Email
+              </label>
               <input
                 type="email"
                 value={email}
@@ -81,7 +96,9 @@ const AuthPage = () => {
             </div>
 
             <div>
-              <label className="block text-gray-700 mb-1 font-medium">Password</label>
+              <label className="block text-gray-700 mb-1 font-medium">
+                Password
+              </label>
               <input
                 type="password"
                 value={password}
@@ -91,24 +108,9 @@ const AuthPage = () => {
               />
             </div>
 
-            {!isLogin && (
-              <div>
-                <label className="block text-gray-700 mb-1 font-medium">
-                  Confirm Password
-                </label>
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Re-enter password"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-pink-500 focus:outline-none"
-                />
-              </div>
-            )}
-
             <button
               type="submit"
-              className="w-full bg-pink-600 hover:bg-pink-700 text-white py-3 rounded-lg font-semibold transition"
+              className="w-full bg-pink-600 hover:bg-pink-700 text-white py-3 rounded-lg font-semibold transition cursor-pointer"
             >
               {isLogin ? "Login" : "Sign Up"}
             </button>
@@ -127,7 +129,7 @@ const AuthPage = () => {
                 setIsLogin(!isLogin);
                 setMessage("");
               }}
-              className="text-pink-600 font-semibold hover:underline"
+              className="text-pink-600 font-semibold hover:underline cursor-pointer"
             >
               {isLogin ? "Sign Up" : "Login"}
             </button>

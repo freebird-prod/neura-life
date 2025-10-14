@@ -1,21 +1,20 @@
+"use client";
+import { useEffect, useState } from "react";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-});
-
-export const metadata = {
-  title: "NeuraLife – The Personalized Digital Brain",
-  description: "The world's first AI-powered personalized digital brain",
-};
+const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({ children }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) return null;
+
   return (
-    <html lang="en">
-      <body
-        className={`${inter.variable} antialiased`}
-      >
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.className} antialiased`}>
         {children}
       </body>
     </html>
