@@ -1,38 +1,174 @@
 "use client";
 import React from "react";
+import { useNotes } from "@/contexts/NotesContext";
+import { useGoals } from "@/contexts/GoalsContext";
+import { useAIInsights } from "@/contexts/AIInsightsContext";
+import { useMemoryGraph } from "@/contexts/MemoryGraphContext";
+import { StickyNote, Target, Brain, Network, Search } from "lucide-react";
 
 const Dashboard = () => {
+  const { notes } = useNotes();
+  const { goals } = useGoals();
+  const { insights } = useAIInsights();
+  const { graphData } = useMemoryGraph();
+
+  const completedGoals = goals.filter(
+    (goal) => goal.status === "completed"
+  ).length;
+  const recentItems = [
+    ...notes
+      .slice(0, 2)
+      .map((note) => ({ ...note, type: "note", icon: StickyNote })),
+    ...goals
+      .slice(0, 2)
+      .map((goal) => ({ ...goal, type: "goal", icon: Target })),
+    ...insights
+      .slice(0, 2)
+      .map((insight) => ({ ...insight, type: "insight", icon: Brain })),
+    ...graphData
+      .slice(0, 2)
+      .map((item) => ({ ...item, type: "graph", icon: Network })),
+  ]
+    .sort((a, b) => b.createdAt.seconds - a.createdAt.seconds)
+    .slice(0, 4);
+
+  const getTypeColor = (type) => {
+    switch (type) {
+      case "note":
+        return "text-blue-500";
+      case "goal":
+        return "text-green-500";
+      case "insight":
+        return "text-purple-500";
+      case "graph":
+        return "text-orange-500";
+      default:
+        return "text-gray-500";
+    }
+  };
+
+  const getTypeLabel = (type) => {
+    switch (type) {
+      case "note":
+        return "Note";
+      case "goal":
+        return "Goal";
+      case "insight":
+        return "AI Insight";
+      case "graph":
+        return "Memory Graph";
+      default:
+        return "Item";
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <div className="grid md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-2xl shadow-lg">
-          <h2 className="text-xl font-semibold text-pink-600 mb-2">Total Notes</h2>
-          <p className="text-gray-600 text-3xl font-bold">128</p>
+      {/* Welcome Message */}
+      <div className="bg-gradient-to-r from-pink-50 to-rose-50 p-6 rounded-2xl border border-pink-100">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          Welcome to NeuraLife! 🧠
+        </h2>
+        <p className="text-gray-600 mb-4">
+          Your AI-powered life organizer. Use the search feature to quickly
+          find anything across your notes, goals, insights, and memory graph.
+        </p>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid md:grid-cols-4 gap-6">
+        <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+          <div className="flex items-center space-x-3">
+            <StickyNote className="text-blue-500" size={24} />
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                {notes.length}
+              </h3>
+              <p className="text-sm text-gray-600">Total Notes</p>
+            </div>
+          </div>
         </div>
-        <div className="bg-white p-6 rounded-2xl shadow-lg">
-          <h2 className="text-xl font-semibold text-pink-600 mb-2">Goals Completed</h2>
-          <p className="text-gray-600 text-3xl font-bold">42</p>
+
+        <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+          <div className="flex items-center space-x-3">
+            <Target className="text-green-500" size={24} />
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                {completedGoals}/{goals.length}
+              </h3>
+              <p className="text-sm text-gray-600">Goals Completed</p>
+            </div>
+          </div>
         </div>
-        <div className="bg-white p-6 rounded-2xl shadow-lg">
-          <h2 className="text-xl font-semibold text-pink-600 mb-2">AI Suggestions</h2>
-          <p className="text-gray-600 text-3xl font-bold">17</p>
+
+        <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+          <div className="flex items-center space-x-3">
+            <Brain className="text-purple-500" size={24} />
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                {insights.length}
+              </h3>
+              <p className="text-sm text-gray-600">AI Insights</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+          <div className="flex items-center space-x-3">
+            <Network className="text-orange-500" size={24} />
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                {graphData.length}
+              </h3>
+              <p className="text-sm text-gray-600">Graph Items</p>
+            </div>
+          </div>
         </div>
       </div>
-      
-      <div className="bg-white p-6 rounded-2xl shadow-lg">
-        <h2 className="text-xl font-semibold text-pink-600 mb-4">Recent Activity</h2>
-        <div className="space-y-4">
-          <div className="flex items-center p-3 bg-gray-50 rounded-lg">
-            <div className="w-3 h-3 bg-pink-500 rounded-full mr-3"></div>
-            <p className="text-gray-700">Created new note: <span className="font-medium">Project Ideas</span></p>
-            <span className="text-sm text-gray-500 ml-auto">2h ago</span>
+
+      {/* Recent Activity */}
+      <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+        <h3 className="text-xl font-semibold text-gray-900 mb-4">
+          Recent Activity
+        </h3>
+        {recentItems.length > 0 ? (
+          <div className="space-y-3">
+            {recentItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={`${item.type}-${item.id}`}
+                  className="flex items-center p-3 bg-gray-50 rounded-lg"
+                >
+                  <Icon className={`w-4 h-4 ${getTypeColor(item.type)} mr-3`} />
+                  <div className="flex-1">
+                    <p className="text-gray-700">
+                      {item.type === "goal"
+                        ? `${
+                            item.status === "completed"
+                              ? "Completed"
+                              : "Created"
+                          } goal: `
+                        : `Created ${getTypeLabel(item.type).toLowerCase()}: `}
+                      <span className="font-medium">
+                        {item.title || "Untitled"}
+                      </span>
+                    </p>
+                  </div>
+                  <span className="text-sm text-gray-500">
+                    {new Date(
+                      item.createdAt.seconds * 1000
+                    ).toLocaleDateString()}
+                  </span>
+                </div>
+              );
+            })}
           </div>
-          <div className="flex items-center p-3 bg-gray-50 rounded-lg">
-            <div className="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
-            <p className="text-gray-700">Completed goal: <span className="font-medium">Morning Routine</span></p>
-            <span className="text-sm text-gray-500 ml-auto">1d ago</span>
-          </div>
-        </div>
+        ) : (
+          <p className="text-gray-500 text-center py-8">
+            No recent activity. Start by creating your first note or goal!
+          </p>
+        )}
       </div>
     </div>
   );

@@ -8,6 +8,7 @@ import {
   LogOut,
   StickyNote,
   Network,
+  Search,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -17,11 +18,14 @@ import { GoalsProvider } from "@/contexts/GoalsContext";
 import { AIInsightsProvider } from "@/contexts/AIInsightsContext";
 import { MemoryGraphProvider } from "@/contexts/MemoryGraphContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
+import { SearchProvider } from "@/contexts/SearchContext";
+import SearchModal from "@/components/SearchModal";
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const menuItems = [
     { name: "Overview", icon: LayoutDashboard, href: "/dashboard" },
@@ -46,6 +50,22 @@ export default function DashboardLayout({ children }) {
     logout();
     router.push("/auth");
   };
+
+  // Add keyboard shortcut for search
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+      if (e.key === "Escape" && isSearchOpen) {
+        setIsSearchOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isSearchOpen]);
 
   return (
     <div className="min-h-screen flex bg-gray-50">
@@ -92,14 +112,36 @@ export default function DashboardLayout({ children }) {
 
       {/* Main Content */}
       <main className="flex-1 ml-64 p-10">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">
-          {getActiveItem()}
-        </h1>
+        {/* Search Bar */}
+        <div className="mb-6 flex justify-between items-center">
+          <h1 className="text-3xl font-bold text-gray-800">
+            {getActiveItem()}
+          </h1>
+          <button
+            onClick={() => setIsSearchOpen(true)}
+            className="flex items-center cursor-pointer space-x-2 px-4 py-2 bg-pink-100 hover:bg-pink-200 text-pink-600 rounded-lg w-sm transition-colors"
+            title="Search (Ctrl+K)"
+          >
+            <Search size={18} />
+            <span className="hidden sm:inline">Type here to search globally....</span>
+          </button>
+        </div>
+
         <NotesProvider>
           <GoalsProvider>
             <AIInsightsProvider>
               <MemoryGraphProvider>
-                <SettingsProvider>{children}</SettingsProvider>
+                <SettingsProvider>
+                  <SearchProvider>
+                    {children}
+
+                    {/* Search Modal */}
+                    <SearchModal
+                      isOpen={isSearchOpen}
+                      onClose={() => setIsSearchOpen(false)}
+                    />
+                  </SearchProvider>
+                </SettingsProvider>
               </MemoryGraphProvider>
             </AIInsightsProvider>
           </GoalsProvider>

@@ -8,6 +8,7 @@ import {
   query,
   where,
   orderBy,
+  onSnapshot,
 } from "firebase/firestore";
 import { useAuth } from "./AuthContext";
 import toast from "react-hot-toast";
@@ -28,30 +29,38 @@ export const AIInsightsProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      fetchInsights();
-    }
-  }, [user]);
+    let unsubscribe;
 
-  const fetchInsights = async () => {
-    try {
+    if (user) {
       const q = query(
         collection(db, "ai-insights"),
         where("userId", "==", user.id)
       );
-      const querySnapshot = await getDocs(q);
-      const insightsData = querySnapshot.docs
-        .map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }))
-        .sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
-      setInsights(insightsData);
-    } catch (error) {
-      console.error("Error fetching insights:", error);
-      toast.error("Failed to load insights");
+      unsubscribe = onSnapshot(
+        q,
+        (querySnapshot) => {
+          const insightsData = querySnapshot.docs
+            .map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }))
+            .sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
+          setInsights(insightsData);
+        },
+        (error) => {
+          console.error("Error listening to insights:", error);
+          toast.error("Failed to load AI insights");
+        }
+      );
     }
-  };
+
+    // Cleanup function to unsubscribe from the listener
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [user]);
 
   const saveInsight = async (insightData) => {
     setLoading(true);
@@ -64,7 +73,6 @@ export const AIInsightsProvider = ({ children }) => {
       };
       await addDoc(collection(db, "ai-insights"), data);
       toast.success("Insight saved successfully!");
-      fetchInsights();
       return true;
     } catch (error) {
       console.error("Error saving insight:", error);
@@ -81,7 +89,6 @@ export const AIInsightsProvider = ({ children }) => {
         insights,
         loading,
         saveInsight,
-        fetchInsights,
       }}
     >
       {children}

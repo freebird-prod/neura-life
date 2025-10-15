@@ -8,6 +8,7 @@ import {
   query,
   where,
   orderBy,
+  onSnapshot,
 } from "firebase/firestore";
 import { useAuth } from "./AuthContext";
 import toast from "react-hot-toast";
@@ -28,27 +29,35 @@ export const GoalsProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      fetchGoals();
-    }
-  }, [user]);
+    let unsubscribe;
 
-  const fetchGoals = async () => {
-    try {
+    if (user) {
       const q = query(collection(db, "goals"), where("userId", "==", user.id));
-      const querySnapshot = await getDocs(q);
-      const goalsData = querySnapshot.docs
-        .map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }))
-        .sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
-      setGoals(goalsData);
-    } catch (error) {
-      console.error("Error fetching goals:", error);
-      toast.error("Failed to load goals");
+      unsubscribe = onSnapshot(
+        q,
+        (querySnapshot) => {
+          const goalsData = querySnapshot.docs
+            .map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }))
+            .sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
+          setGoals(goalsData);
+        },
+        (error) => {
+          console.error("Error listening to goals:", error);
+          toast.error("Failed to load goals");
+        }
+      );
     }
-  };
+
+    // Cleanup function to unsubscribe from the listener
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [user]);
 
   const saveGoal = async (goalData) => {
     setLoading(true);
@@ -61,7 +70,6 @@ export const GoalsProvider = ({ children }) => {
       };
       await addDoc(collection(db, "goals"), data);
       toast.success("Goal saved successfully!");
-      fetchGoals();
       return true;
     } catch (error) {
       console.error("Error saving goal:", error);
@@ -78,7 +86,6 @@ export const GoalsProvider = ({ children }) => {
         goals,
         loading,
         saveGoal,
-        fetchGoals,
       }}
     >
       {children}

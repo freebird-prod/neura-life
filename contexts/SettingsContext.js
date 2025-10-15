@@ -1,7 +1,7 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
 import { useAuth } from "./AuthContext";
 import toast from "react-hot-toast";
 
@@ -84,7 +84,6 @@ export const SettingsProvider = ({ children }) => {
         settings,
         loading,
         saveSettings,
-        fetchSettings,
       }}
     >
       {children}

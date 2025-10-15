@@ -8,6 +8,7 @@ import {
   query,
   where,
   orderBy,
+  onSnapshot,
 } from "firebase/firestore";
 import { useAuth } from "./AuthContext";
 import toast from "react-hot-toast";
@@ -28,30 +29,38 @@ export const MemoryGraphProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      fetchGraphData();
-    }
-  }, [user]);
+    let unsubscribe;
 
-  const fetchGraphData = async () => {
-    try {
+    if (user) {
       const q = query(
         collection(db, "memory-graph"),
         where("userId", "==", user.id)
       );
-      const querySnapshot = await getDocs(q);
-      const graphDataList = querySnapshot.docs
-        .map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }))
-        .sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
-      setGraphData(graphDataList);
-    } catch (error) {
-      console.error("Error fetching graph data:", error);
-      toast.error("Failed to load graph data");
+      unsubscribe = onSnapshot(
+        q,
+        (querySnapshot) => {
+          const graphDataList = querySnapshot.docs
+            .map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }))
+            .sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
+          setGraphData(graphDataList);
+        },
+        (error) => {
+          console.error("Error listening to graph data:", error);
+          toast.error("Failed to load memory graph");
+        }
+      );
     }
-  };
+
+    // Cleanup function to unsubscribe from the listener
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [user]);
 
   const saveGraphNode = async (nodeData) => {
     setLoading(true);
@@ -64,7 +73,6 @@ export const MemoryGraphProvider = ({ children }) => {
       };
       await addDoc(collection(db, "memory-graph"), data);
       toast.success("Graph node saved successfully!");
-      fetchGraphData();
       return true;
     } catch (error) {
       console.error("Error saving graph node:", error);
@@ -81,7 +89,6 @@ export const MemoryGraphProvider = ({ children }) => {
         graphData,
         loading,
         saveGraphNode,
-        fetchGraphData,
       }}
     >
       {children}
