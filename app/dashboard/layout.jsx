@@ -20,6 +20,7 @@ import { MemoryGraphProvider } from "@/contexts/MemoryGraphContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { SearchProvider } from "@/contexts/SearchContext";
 import SearchModal from "@/components/SearchModal";
+import SyncStatus from "@/components/SyncStatus";
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
@@ -112,19 +113,22 @@ export default function DashboardLayout({ children }) {
 
       {/* Main Content */}
       <main className="flex-1 ml-64 p-10">
-        {/* Search Bar */}
+        {/* Header with Search and Sync Status */}
         <div className="mb-6 flex justify-between items-center">
           <h1 className="text-3xl font-bold text-gray-800">
             {getActiveItem()}
           </h1>
-          <button
-            onClick={() => setIsSearchOpen(true)}
-            className="flex items-center cursor-pointer space-x-2 px-4 py-2 bg-pink-100 hover:bg-pink-200 text-pink-600 rounded-lg w-sm transition-colors"
-            title="Search (Ctrl+K)"
-          >
-            <Search size={18} />
-            <span className="hidden sm:inline">Type here to search globally....</span>
-          </button>
+          <div className="flex items-center gap-3">
+            <SyncStatus />
+            <button
+              onClick={() => setIsSearchOpen(true)}
+              className="flex items-center cursor-pointer space-x-2 px-4 py-2 bg-pink-100 hover:bg-pink-200 text-pink-600 rounded-lg transition-colors"
+              title="Search (Ctrl+K)"
+            >
+              <Search size={18} />
+              <span className="hidden sm:inline">Search...</span>
+            </button>
+          </div>
         </div>
 
         <NotesProvider>

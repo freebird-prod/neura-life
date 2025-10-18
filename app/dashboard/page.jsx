@@ -1,12 +1,21 @@
 "use client";
 import React from "react";
+import { useRouter } from "next/navigation";
 import { useNotes } from "@/contexts/NotesContext";
 import { useGoals } from "@/contexts/GoalsContext";
 import { useAIInsights } from "@/contexts/AIInsightsContext";
 import { useMemoryGraph } from "@/contexts/MemoryGraphContext";
-import { StickyNote, Target, Brain, Network, Search } from "lucide-react";
+import {
+  StickyNote,
+  Target,
+  Brain,
+  Network,
+  Search,
+  ChevronRight,
+} from "lucide-react";
 
 const Dashboard = () => {
+  const router = useRouter();
   const { notes } = useNotes();
   const { goals } = useGoals();
   const { insights } = useAIInsights();
@@ -62,6 +71,26 @@ const Dashboard = () => {
     }
   };
 
+  const getNavigationPath = (type) => {
+    switch (type) {
+      case "note":
+        return "/dashboard/notes";
+      case "goal":
+        return "/dashboard/goals-tasks";
+      case "insight":
+        return "/dashboard/ai-insights";
+      case "graph":
+        return "/dashboard/memory-graph";
+      default:
+        return "/dashboard";
+    }
+  };
+
+  const handleItemClick = (item) => {
+    const path = getNavigationPath(item.type);
+    router.push(path);
+  };
+
   return (
     <div className="space-y-6">
       {/* Welcome Message */}
@@ -70,8 +99,8 @@ const Dashboard = () => {
           Welcome to NeuraLife! 🧠
         </h2>
         <p className="text-gray-600 mb-4">
-          Your AI-powered life organizer. Use the search feature to quickly
-          find anything across your notes, goals, insights, and memory graph.
+          Your AI-powered life organizer. Use the search feature to quickly find
+          anything across your notes, goals, insights, and memory graph.
         </p>
       </div>
 
@@ -138,9 +167,10 @@ const Dashboard = () => {
               return (
                 <div
                   key={`${item.type}-${item.id}`}
-                  className="flex items-center p-3 bg-gray-50 rounded-lg"
+                  onClick={() => handleItemClick(item)}
+                  className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer group"
                 >
-                  <Icon className={`w-4 h-4 ${getTypeColor(item.type)} mr-3`} />
+                  <Icon className={`w-5 h-5 ${getTypeColor(item.type)} mr-3`} />
                   <div className="flex-1">
                     <p className="text-gray-700">
                       {item.type === "goal"
@@ -155,11 +185,17 @@ const Dashboard = () => {
                       </span>
                     </p>
                   </div>
-                  <span className="text-sm text-gray-500">
-                    {new Date(
-                      item.createdAt.seconds * 1000
-                    ).toLocaleDateString()}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500">
+                      {new Date(
+                        item.createdAt.seconds * 1000
+                      ).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
+                  </div>
                 </div>
               );
             })}

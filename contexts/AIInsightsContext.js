@@ -9,6 +9,8 @@ import {
   where,
   orderBy,
   onSnapshot,
+  doc,
+  deleteDoc,
 } from "firebase/firestore";
 import { useAuth } from "./AuthContext";
 import toast from "react-hot-toast";
@@ -62,8 +64,56 @@ export const AIInsightsProvider = ({ children }) => {
     };
   }, [user]);
 
-  const saveInsight = async (insightData) => {
+  const generateInsight = async (prompt, category = "General") => {
     setLoading(true);
+    const loadingToast = toast.loading("🤖 AI is generating your insight...");
+
+    try {
+      const response = await fetch("/api/generate-insight", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prompt,
+          category,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to generate insight");
+      }
+
+      // Save the generated insight to Firestore
+      toast.dismiss(loadingToast);
+      const saveToast = toast.loading("💾 Saving to database...");
+
+      const success = await saveInsight(data.insight);
+      toast.dismiss(saveToast);
+
+      if (success) {
+        toast.success("✨ AI insight generated successfully!", {
+          duration: 2500,
+        });
+        return data.insight;
+      } else {
+        throw new Error("Failed to save generated insight");
+      }
+    } catch (error) {
+      console.error("Error generating insight:", error);
+      toast.dismiss(loadingToast);
+      toast.error(`❌ ${error.message}`, {
+        duration: 4000,
+      });
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const saveInsight = async (insightData) => {
     try {
       const data = {
         ...insightData,
@@ -72,14 +122,22 @@ export const AIInsightsProvider = ({ children }) => {
         updatedAt: new Date(),
       };
       await addDoc(collection(db, "ai-insights"), data);
-      toast.success("Insight saved successfully!");
       return true;
     } catch (error) {
       console.error("Error saving insight:", error);
-      toast.error("Failed to save insight");
+      throw error;
+    }
+  };
+
+  const deleteInsight = async (insightId) => {
+    try {
+      await deleteDoc(doc(db, "ai-insights", insightId));
+      toast.success("🗑️ Insight deleted successfully!");
+      return true;
+    } catch (error) {
+      console.error("Error deleting insight:", error);
+      toast.error("❌ Failed to delete insight");
       return false;
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -89,6 +147,8 @@ export const AIInsightsProvider = ({ children }) => {
         insights,
         loading,
         saveInsight,
+        generateInsight,
+        deleteInsight,
       }}
     >
       {children}

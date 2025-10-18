@@ -9,6 +9,9 @@ import {
   where,
   orderBy,
   onSnapshot,
+  doc,
+  updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { useAuth } from "./AuthContext";
 import toast from "react-hot-toast";
@@ -83,12 +86,48 @@ export const MemoryGraphProvider = ({ children }) => {
     }
   };
 
+  const updateGraphNode = async (nodeId, nodeData) => {
+    setLoading(true);
+    try {
+      const nodeRef = doc(db, "memory-graph", nodeId);
+      await updateDoc(nodeRef, {
+        ...nodeData,
+        updatedAt: new Date(),
+      });
+      toast.success("Graph node updated successfully!");
+      return true;
+    } catch (error) {
+      console.error("Error updating graph node:", error);
+      toast.error("Failed to update graph node");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteGraphNode = async (nodeId) => {
+    setLoading(true);
+    try {
+      await deleteDoc(doc(db, "memory-graph", nodeId));
+      toast.success("Graph node deleted successfully!");
+      return true;
+    } catch (error) {
+      console.error("Error deleting graph node:", error);
+      toast.error("Failed to delete graph node");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <MemoryGraphContext.Provider
       value={{
         graphData,
         loading,
         saveGraphNode,
+        updateGraphNode,
+        deleteGraphNode,
       }}
     >
       {children}
